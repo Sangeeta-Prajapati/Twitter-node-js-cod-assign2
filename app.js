@@ -141,14 +141,20 @@ app.post("/login/", async (request, response) => {
 app.get("/user/tweets/feed/", authenticateToken, async (request, response) => {
   const { username } = request;
   const followingPeopleIds = await getFollowingPeopleIdsOfUser(username);
-  const getTweetQuery = `
-  SELECT 
-  username,tweet, date_time as dateTime
-  FROM user INNER JOIN tweet 
-  ON user.user_id = tweet.user_id;
-  WHERE user.user_id IN (${followingPeopleIds})
-  ORDER BY date_time DESC
-  LIMIT 4 ;`;
+  const tweetsQuery = `
+    SELECT
+    user.username, tweet.tweet, tweet.date_time AS dateTime
+    FROM
+    follower
+    INNER JOIN tweet
+    ON follower.following_user_id = tweet.user_id
+    INNER JOIN user
+    ON tweet.user_id = user.user_id
+    WHERE
+    follower.follower_user_id = ${id of the logged-in user}
+    ORDER BY
+    tweet.date_time DESC
+    LIMIT 4;`;
   const tweet = await db.all(getTweetQuery);
   response.send(tweet);
 });
